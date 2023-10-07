@@ -1,26 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
 import {BsArrowRight} from "react-icons/bs"
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom"
+import fireDb from "../../../firebase"
+
+const initialState = {
+  fullname:"",
+  emailid:"",
+  mobileno:"",
+  address:""
+}
+
 
 const AddNewUser = () => {
-  const [values, setValues] = React.useState({
-    fullname: '',
-    mobileno: '',
-    emailid: '',
-    address:''
-
-  })
-
-  
+  const [selected, setSelected] = useState("Select Remarks");
+  const [addFormData,setAddFormData]  = useState({})
+  // const [fullname, setFullname] = useState()
+  // const [emailid, setEmailid] = useState()
+  // const [mobileno, setMobileno] = useState()
+  //const [address, setAddress]=useState()
+  const [write, setWrite]= useState()
+  const [services, setServices] = useState([])
+  const navigate = useNavigate()
+  const [state,setState] = useState(initialState);
+  const [data,setData]= useState({})
+  const history = useNavigate()
 
   const [validations, setValidations] = React.useState({
     fullname: '',
+    fullname: '',
     mobileno: '',
     emailid: '',
     address:''
+
   })
 
   const validateAll = () => {
-    const { fullname, mobileno, emailid,address } = values
+    const { fullname, mobileno, emailid,address } = state
     const validations = {fullname: '',  mobileno: '', emailid: '' , address:''
   }
     let isValid = true
@@ -29,6 +45,7 @@ const AddNewUser = () => {
       validations.fullname = 'Name is required'
       isValid = false
     }
+    //const nameRegex = /^[a-zA-Z]+$/;
     
     if (fullname && fullname.length < 3 || fullname.length > 50) {
       validations.fullname = 'Name must contain between 3 and 50 characters'
@@ -60,17 +77,17 @@ const AddNewUser = () => {
       isValid = false
     }
 
+
     if (!isValid) {
       setValidations(validations)
     }
     
     return isValid
-    
   }
 
   const validateOne = (e) => {
     const { name } = e.target
-    const value = values[name]
+    const value = state[name]
     let message = ''
     
     if (!value) {
@@ -94,44 +111,77 @@ const AddNewUser = () => {
     }
 
     
+
     setValidations({...validations, [name]: message })
   }
+
+ //multi cheakbox
+ const  getServices = (e) => {
+
+
+ const { value, checked } = e.target;
+
+//  console.log(`${value} is ${checked}`);
+  
+ if(checked){
+  setServices([...services,value])
+
+ }else{
+  setServices(services.filter((e)=>e !==value))
+ }
+ }
+ const {fullname,mobileno,emailid,address} = state;  
  
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setValues({...values, [name]: value })
-  }
-  const resetForm = () => {
-    setValues("")
-    
-  }
+
+ const handleInputChange = (e) => {
+  const {name,value} = e.target;
+  setState({...state,[name]:value});
+ // setValues({...values, [name]: value })
+ }
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-   
-   
+    e.preventDefault();
+
     const isValid = validateAll()
     
     if (!isValid) {
       return false
     }
 
-    alert(JSON.stringify(values))
-  }
-  
-  const {  fullname, mobileno , emailid, address } = values
+    alert(JSON.stringify(state))
+   
+ 
+    if(!fullname || !emailid || !mobileno ){
+      toast.error("Please provide value in each input field")
+    }
+    else{
+      fireDb.child("user").push(state,(err) =>{
+        if(err) {
+          toast.error(err);
+        }else {
+          toast.success("User Added Successfully");
+        }
+      })
+      setTimeout(() => history("/dashboard"))
+    }
+
+    
+    
+  };
+  //const {  fullname, mobileno , emailid, address } = values
 
   const { 
     fullname: fullnameVal, 
     mobileno: mobilenoVal, 
     emailid: emailidVal ,
-    address:addressVal
+    address: addressVal
 
   } = validations
   
   const textInput = React.useRef();
 
- 
+
+
   
   return (
     <>
@@ -198,7 +248,7 @@ const AddNewUser = () => {
                     id="fullname"
                     name="fullname"
                     value={fullname} 
-                    onChange={handleChange}
+                    onChange={handleInputChange}
                     onBlur={validateOne}
                   
                     //value={fullname}
@@ -231,7 +281,7 @@ const AddNewUser = () => {
                     id="mobileno"
                     name="mobileno"
                     value={mobileno} 
-                    onChange={handleChange}
+                    onChange={handleInputChange}
                     onBlur={validateOne}
                    
                     //value={mobileno}
@@ -261,7 +311,7 @@ const AddNewUser = () => {
                     id="emailid"
                     name="emailid"
                     value={emailid} 
-                    onChange={handleChange}
+                    onChange={handleInputChange}
                     onBlur={validateOne}
                  
                     //value={emailid}
@@ -288,7 +338,7 @@ const AddNewUser = () => {
                     id="address"
                     name="address"
                     value={address} 
-                    onChange={handleChange}
+                    onChange={handleInputChange}
                     onBlur={validateOne}
                     
                     //value={address}
@@ -636,6 +686,7 @@ const AddNewUser = () => {
             <div className="flex space-x-5 py-5">
               <button
                 type="submit"
+                onClick={handleSubmit}
                 className="cursor-pointer font-Montserrat text-white text-[16px] not-italic font-semibold leading-normal bg-[#12B28C] px-14 py-2.5 mr-2 mb-2"
               >
                 Add
@@ -643,7 +694,7 @@ const AddNewUser = () => {
               <button
                
                 type="reset"
-                onClick={() => resetForm()}
+                // onClick={() => resetForm()}
                 className="cursor-pointer font-inter text-[#211F3B] text-[16px] not-italic font-semibold leading-normal border bg-[#F9F7F7] border-[#211F3B] px-14 py-2.5 mr-2 mb-2"
               >
                 Cancel

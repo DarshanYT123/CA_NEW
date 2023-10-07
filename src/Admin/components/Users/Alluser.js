@@ -6,57 +6,57 @@ import { toast } from 'react-toastify';
 // import Navbar from './Navbar';
 
 const Alluser = () => {
-    const [activeTab, setActiveTab] = useState("tab1");
+  const [activeTab, setActiveTab] = useState("tab1");
 
-    const [data,setData] = useState({});
-  
-    const onDelete = (id1) => {
-      if(
-        window.confirm("Are you sure that you wanted to delete that contact ?")
-        ){
-        fireDb.child(`contacts/${id1}`).remove((err)=> {
-          if(err){
-          toast.error(err);
-        }
-        else{
-          toast.success("Contact Deleted Successfully");
-        }
-      })
+  const [data,setData] = useState({});
+
+  const onDelete = (id2) => {
+    if(
+      window.confirm("Are you sure that you wanted to delete that contact ?")
+      ){
+      fireDb.child(`user/${id2}`).remove((err)=> {
+        if(err){
+        toast.error(err);
       }
+      else{
+        toast.success("Contact Deleted Successfully");
+      }
+    })
     }
-    const useQuery =() => {
-      return new URLSearchParams(useLocation().search);
-    }
-    let query = useQuery();
-    let search = query.get("fullname");
-    console.log("search",search);
+  }
+  const useQuery =() => {
+    return new URLSearchParams(useLocation().search);
+  }
+  let query = useQuery();
+  let search = query.get("fullname");
+  console.log("search",search);
 
-    useEffect(() => {
-      searchData();
-    },[search])
+  useEffect(() => {
+    searchData();
+  },[search])
 
-    const searchData = () =>{
-      fireDb.child("contacts").orderByChild("fullname").equalTo(search).on("value",(snapshot) => {
-        if(snapshot.val()) {
-          const data = snapshot.val();
-          searchData(data);
-        }
-      })
-    }
-    useEffect(() => {
-      fireDb.child("contacts").on("value",(snapshot)=>{
-        if(snapshot.val() !== null){
-          setData({...snapshot.val()});
-        }
-        else{
-          setData({});
-        }
-      })
-      return () => {
+  const searchData = () =>{
+    fireDb.child("user").orderByChild("fullname").equalTo(search).on("value",(snapshot) => {
+      if(snapshot.val()) {
+        const data = snapshot.val();
+        searchData(data);
+      }
+    })
+  }
+  useEffect(() => {
+    fireDb.child("user").on("value",(snapshot)=>{
+      if(snapshot.val() !== null){
+        setData({...snapshot.val()});
+      }
+      else{
         setData({});
       }
-    },[]);
-  
+    })
+    return () => {
+      setData({});
+    }
+  },[]);
+
     return(
         <div>
            

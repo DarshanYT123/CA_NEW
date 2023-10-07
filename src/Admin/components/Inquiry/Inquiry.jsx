@@ -169,7 +169,7 @@ const Inquiry = () => {
         if(err) {
           toast.error(err);
         }else {
-          toast.success("Contact Added Successfully");
+          toast.success("Added Successfully");
         }
       })
       setTimeout(() => history("/inquiryfrom"))
