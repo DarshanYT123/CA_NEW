@@ -1,0 +1,10 @@
+.sidebar_responsive {
+  display: inline !important;
+  height: 100%;
+}
+
+@media only screen and (max-width: 978px) {
+  #sidebar {
+    display: none;
+  }
+}
